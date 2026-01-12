@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <link rel="stylesheet" href="../static/vendor/bootstrap-5.3.5-dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
+
+    <link href="../static/css/home.css" rel="stylesheet">
+    <style>
+      body {
+        background-color: #E1CEEC;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        min-height: 100vh;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+      }
+      
+      .search-container {
+        /* Increased width from 800px to 1000px */
+        max-width: 1000px;
+        margin: 0 auto;
+      }
+
+      /* Minimalist Glass Cards */
+      .resource-card {
+        border: none;
+        border-radius: 12px;
+        background: rgba(255, 255, 255, 0.6); /* Semi-transparent white */
+        backdrop-filter: blur(10px);           /* Frosted glass effect */
+        transition: all 0.3s ease;
+        height: 100%;
+        cursor: default;
+      }
+
+      .resource-card:hover {
+        background: rgba(255, 255, 255, 0.95);
+        transform: translateY(-5px);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      }
+
+      .icon-box {
+        font-size: 2.2rem;
+        margin-bottom: 1rem;
+        color: #8A2BE2; /* OpenCitations Purple */
+      }
+      
+      .input-group .form-control, 
+      .input-group .form-select {
+        border: 1px solid #ced4da;
+      }
+      .input-group .form-control:focus {
+        border-color: #8A2BE2;
+        box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+      }
+    </style>
+  </head>
+
+  <body class="container py-4">
+
+    <div class="d-flex justify-content-center mb-5">
+      <img src="../static/img/oc-medium.png" alt="OpenCitations Logo" class="img-fluid" style="max-height: 100px;">
+    </div>
+
+    <div class="search-bar mb-5 search-container">
+      <form id="searchForm">
+        <div class="input-group shadow-sm">
+            
+            <select name="category" class="form-select bg-light fw-medium" style="max-width: 140px;">
+              <option value="document">Document</option>
+              <option value="author">Author</option>
+              <option value="venue">Venue</option>
+              <option value="citation">Citation</option>
+            </select>
+
+            <input type="text" id="searchQuery" name="query" class="form-control" placeholder="Search..." aria-label="Search" />
+
+            <button type="submit" class="btn btn-primary" style="background-color: #8A2BE2; border-color: #8A2BE2;">
+              <i class="fa fa-search"></i>
+            </button>
+            
+        </div>
+      </form>
+    </div>
+
+    <div class="row g-4 justify-content-center">
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card resource-card p-4 text-center">
+          <div class="icon-box">
+            <i class="fa-regular fa-file-lines"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Document</h5>
+          <p class="small text-muted mb-0">
+            Search bibliographic resources (articles, books) by DOI, OMID, or PMID to view metadata and references.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card resource-card p-4 text-center">
+          <div class="icon-box">
+            <i class="fa-solid fa-user-pen"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Author</h5>
+          <p class="small text-muted mb-0">
+            Find researchers to explore their publication history, affiliations, and collaboration networks.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card resource-card p-4 text-center">
+          <div class="icon-box">
+            <i class="fa-solid fa-building-columns"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Venue</h5>
+          <p class="small text-muted mb-0">
+            Browse journals, conferences, and series metadata to track publication volumes over time.
+          </p>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-6 col-lg-3">
+        <div class="card resource-card p-4 text-center">
+          <div class="icon-box">
+            <i class="fa-solid fa-share-nodes"></i>
+          </div>
+          <h5 class="fw-bold mb-2">Citation</h5>
+          <p class="small text-muted mb-0">
+            Visualize the direct citation link between a citing entity and a cited entity (OCI).
+          </p>
+        </div>
+      </div>
+
+    </div>
+
+    <script src="../static/vendor/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js"></script>
+    <script src="../static/js/home.js"></script>
+
+  </body>
+</html>

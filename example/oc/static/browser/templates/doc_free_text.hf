@@ -1,0 +1,28 @@
+#id main
+#url value=document/{search_query}
+
+#id search_ids
+#endpoint https://sparql.opencitations.net/meta
+#postprocess post_search_ids(work)
+#method get
+#sparql PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX fabio: <http://purl.org/spar/fabio/>
+SELECT ?work
+WHERE {
+  BIND(REPLACE("[[search_query]]", "%20", " ") AS ?search_str)
+  ?work a fabio:Expression ;
+        dcterms:title ?title .
+  FILTER( CONTAINS(LCASE(?title), LCASE(?search_str)))
+}
+LIMIT 2
+
+#id api_search
+#callfun api_search()
+
+
+
+
+
+
+
+

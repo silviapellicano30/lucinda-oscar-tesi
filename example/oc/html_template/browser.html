@@ -7,20 +7,27 @@
     <link rel="stylesheet" href="../static/vendor/bootstrap-5.3.5-dist/css/bootstrap.min.css">
     <link href="../static/css/lucinda.css" rel="stylesheet">
 
-    <!-- Custom styles for this template -->
+    
     <link href="../static/css/browser.css" rel="stylesheet">
 
   </head>
+
 
 
   <body>
 
     <header>
       <div class="logo">
-        <img src="../static/img/lucinda_logo.svg" " alt="Lucinda Logo"/>
+        <img src="../static/img/oc-medium.png" " alt="OC Logo"/ style="padding: 10%;">
         <!--<h1>Lucinda v2.0</h1>-->
       </div>
     </header>
+
+    <!--<div class="mb-3">
+      <a href="http://127.0.0.1:5500/example/oc/html_template/home.html" class="btn btn-sm">
+        <i class="fas fa-arrow-left"></i> Home
+      </a>
+    </div>-->
     
 
 
@@ -29,7 +36,7 @@
 
     <footer>
       <div class="footer-content">
-        <p>2024 Lucinda</p>
+        <p><em>2025 Lucinda v2.0<em></p>
       </div>
     </footer>
 
@@ -37,13 +44,23 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="../static/js/lucinda.js"></script>
     <script type="text/javascript" src="../static/browser/localbrowser.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script>
       Lucinda.init({
           templates_url: "../static/browser/templates/",
           templates: [
-            "new_br_any_browser",
+            // with ASK
+            "new_venue_browser",
+            
             "new_ci_browser",
-            //"ra_author_browser", // with ASK if is an Author
+            "new_ra_browser",
+            "new_br_any_browser",
+            "doc_citations",
+            "doc_references",
+            "doc_free_text" ,
+            "aut_free_text",
+            "venue_free_text"
+             // with ASK if is an Author
             //"br_ja_browser", // with ASK if its a Journal Article
             //"br_j_browser" // with ASK if its a Journal
             
@@ -51,6 +68,7 @@
           verbose: true
       });
       Lucinda.run();
+
     </script>
 
   </body>

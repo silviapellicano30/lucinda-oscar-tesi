@@ -1,0 +1,118 @@
+<html>
+  <head>
+    <style></style>
+  </head>
+  <body>
+
+    <br>
+
+    <div class="mb-3">
+      <a href="http://127.0.0.1:5500/example/oc/html_template/home.html" class="btn  btn-sm">
+        <i class="fas fa-arrow-left"></i> Home
+      </a>
+    </div>
+
+    <div class="row">
+
+      <div class="col-12 mb-4">
+        <div class="card shadow-sm p-3 h-100">
+          <div class="card-header text-center">
+            <h3 class="my-0">ra/[[Lucinda:getVal(main.id)]]</h3>
+            <p class="mb-0">Responsible Agent Record</p>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 col-md-8 mb-4">
+        <div class="card shadow-sm p-3 h-100">
+            
+            <div class="card-header text-center">
+                <h4 class="my-1 fw-bold">Author Profile</h4>
+            </div>
+
+            <div class="card-body">
+                
+            <h5 class="card-title text-center">
+              [[Lucinda:create_author_header_link(main.id, author_meta.gname, author_meta.fname)]]
+            </h5>
+                <hr>
+
+                <div class="row">
+
+                    <div class="col-12 col-md-6">
+                        <span class="metadata-label fw-bold">ORCID:</span>
+                        <p>
+                            <a href="https://orcid.org/[[Lucinda:getVal(author_meta.orcid)]]" target="_blank">
+                                orcid:[[Lucinda:getVal(author_meta.orcid)]] <sup><i class="fas fa-external-link-alt small"></i></sup>
+                            </a>
+                        </p>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </div>
+      </div>
+
+
+      <div class="col-12 col-md-4 mb-4">
+        <div class="card shadow-sm p-1  h-100"> 
+          <div class="card-body">
+
+              <div class="row g-3 column-gap-3">
+                <div class="col">
+                  <div class="card shadow-sm p-1 m-1 h-100">
+                      <div class="card-header text-center py-1">
+                           <span class="fw-bold small">Publications</span>
+                      </div>
+                      <div class="card-body text-center">
+                        <h3 class="text-primary my-1">[[Lucinda:getVal(author_works.count)]]</h3>
+                      </div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="row g-3 column-gap-3 mt-1">
+                <div class="col">
+                  <div class="card shadow-sm p-1 m-1">
+                    <div class="card-header text-center">
+                         <h6 class="my-1"><span class="fw-bold small">Publications per year</span></h6>
+                    </div>
+                    <div class="card-body">
+                      <div><canvas id="citsxyear_chart" style="display: block; margin: 0 auto;"></canvas></div>
+                      [[Lucinda:barchart_simple(
+                        _DATA_("citsxyear_chart"),
+                        author_works.pubYears
+                      )]]
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12">
+        <div class="card shadow-sm p-3">
+            
+            <div class="card-header text-center">
+                 <h4 class="my-1 fw-bold">List of Publications</h4>
+            </div>
+            
+            <div class="card-body p-4">
+                [[Lucinda:getVal(author_works.pubList)]]
+            </div>
+
+        </div>
+      </div>
+
+      <footer>
+        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+        <script type="text/javascript" src="https://www.gstatic.com/charts/loader.js"></script>
+      </footer>
+
+    </div>
+  </body>
+</html>

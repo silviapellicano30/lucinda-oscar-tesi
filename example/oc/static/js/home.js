@@ -3,8 +3,55 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchInput = document.getElementById("searchQuery");
   const categorySelect = searchForm.querySelector('select[name="category"]');
 
+  // --- 1. Placeholder Logic ---
+  const placeholders = {
+    document: "Search by DOI, PMID, Title...",
+    author: "Search by ORCID, Name...",
+    venue: "Search by ISSN, Name...",
+    citation: "Search by OCI...",
+    doc_cit: "Enter DOI/PMID to see citations...",
+    doc_ref: "Enter DOI/PMID to see references..."
+  };
+
+  function updatePlaceholder() {
+    const cat = categorySelect.value;
+    searchInput.placeholder = placeholders[cat] || "Search...";
+  }
+
+  // Initialize and listen for changes
+  updatePlaceholder();
+  categorySelect.addEventListener("change", updatePlaceholder);
+
+
+  // --- 2. Regex Definitions ---
+  // Lucinda native prefixes
+  const lucindaPrefixRegex = /^(br|ci|ra|ve):?/i;
+  
+  // External Identifiers
+  const doiRegex = /^(doi:)?10\.\d{4,9}\/[^\s]+$/i;
+  const pmidRegex = /^pmid:\d{1,8}$/i;
+  const openalexRegex = /^openalex:W\d{10}$/i;
+  
+  // New Identifiers (ORCID & ISSN)
+  // ORCID: 0000-0000-0000-0000 (16 digits, dashes, last can be X)
+  const orcidRegex = /^(orcid:)?\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/i;
+  // ISSN: 0000-0000 (8 digits, dash, last can be X)
+  const issnRegex = /^(issn:)?\d{4}-\d{3}[0-9X]$/i;
+
+  function isDirectLucindaQuery(query) {
+    return (
+      lucindaPrefixRegex.test(query) ||
+      doiRegex.test(query) ||
+      pmidRegex.test(query) ||
+      openalexRegex.test(query) ||
+      orcidRegex.test(query) ||
+      issnRegex.test(query)
+    );
+  }
+
+  // --- 3. Search Submission ---
   searchForm.addEventListener("submit", async (event) => {
-    event.preventDefault(); // prevent page reload
+    event.preventDefault(); 
 
     const category = categorySelect.value;
     const query = searchInput.value.trim();
@@ -14,24 +61,27 @@ document.addEventListener("DOMContentLoaded", () => {
       return;
     }
 
-    
-   
-    if (category === "document" || category ==="citation") {
-      await openLucinda(query);
-    } else {
-      // Otherwise, go to Lucinda search mode for authors/venues/citations
-      const lucindaUrl = `http://127.0.0.1:5500/example/oc/html_template/browser.html?category=${category}&query=${query}`;
-      window.location.href = lucindaUrl;
+    // If it looks like an ID (DOI, ORCID, etc.), resolve it
+    if (isDirectLucindaQuery(query)) {
+      await openLucinda(query, category);
+      return;
     }
+
+    // Otherwise, treat as Free Text Search
+    // Matches: category/{query} -> handled by doc_free_text.hf / aut_free_text.hf etc.
+    const lucindaUrl = `http://127.0.0.1:5500/example/oc/html_template/browser.html?value=${category}/${encodeURIComponent(query)}`;
+    window.location.href = lucindaUrl;
   });
 });
 
+/**
+ * Resolves external identifiers (DOI, ORCID, etc.) to an OMID using SPARQL.
+ */
 async function idToOmid(identifier) {
   const endpoint = "https://sparql.opencitations.net/meta";
-
-  // Detect type and clean the value
   let scheme, cleanId;
 
+  // Detect Scheme and Clean ID
   if (/^doi:|^10\.\d{4,9}\//i.test(identifier)) {
     scheme = "doi";
     cleanId = identifier.replace(/^doi:/i, "");
@@ -41,10 +91,17 @@ async function idToOmid(identifier) {
   } else if (/^openalex:/i.test(identifier)) {
     scheme = "openalex";
     cleanId = identifier.replace(/^openalex:/i, "");
+  } else if (/^orcid:|\d{4}-\d{4}-\d{4}-\d{3}[0-9X]/i.test(identifier)) {
+    scheme = "orcid"; // datacite:orcid
+    cleanId = identifier.replace(/^orcid:/i, "");
+  } else if (/^issn:|\d{4}-\d{3}[0-9X]/i.test(identifier)) {
+    scheme = "issn"; // datacite:issn
+    cleanId = identifier.replace(/^issn:/i, "");
   } else {
     throw new Error("Unknown identifier type: " + identifier);
   }
 
+  // SPARQL Query
   const query = `
     PREFIX datacite: <http://purl.org/spar/datacite/>
     PREFIX literal: <http://www.essepuntato.it/2010/06/literalreification/>
@@ -55,25 +112,18 @@ async function idToOmid(identifier) {
     } LIMIT 1
   `;
 
-  console.log("SPARQL query to find OMID:\n", query);
-
   const url = endpoint + "?query=" + encodeURIComponent(query);
-  console.log("SPARQL endpoint URL:", url);
 
   const response = await fetch(url, {
     headers: { "Accept": "application/sparql-results+json" }
   });
 
-  console.log("Response status:", response.status);
-
   const text = await response.text();
-  console.log("Raw response:", text);
 
   let data;
   try {
     data = JSON.parse(text);
   } catch (err) {
-    console.error(" Failed to parse JSON:", err);
     throw new Error("The endpoint did not return valid JSON.");
   }
 
@@ -84,74 +134,51 @@ async function idToOmid(identifier) {
   return data.results.bindings[0].omid.value;
 }
 
-/* Existing function definitions
-async function doiToOmid(identifier) {
-  const endpoint = "https://sparql.opencitations.net/meta";
-  const cleanId = identifier.replace(/^doi:/i, "");
-
-  const query = `
-    PREFIX datacite: <http://purl.org/spar/datacite/>
-    PREFIX literal: <http://www.essepuntato.it/2010/06/literalreification/>
-    SELECT ?omid WHERE {
-      ?omid datacite:hasIdentifier ?identifier .
-      ?identifier datacite:usesIdentifierScheme datacite:doi ;
-                  literal:hasLiteralValue "${cleanId}" .
-    } LIMIT 1
-  `;
-
-  console.log("SPARQL query to find OMID:\n", query);
-  const url = endpoint + "?query=" + encodeURIComponent(query);
-
-  console.log("SPARQL endpoint URL:", url);
-  const response = await fetch(url, {
-    headers: { "Accept": "application/sparql-results+json" }
-  });
-
-  console.log("Response status:", response.status);
-  const data = await response.json();
-
-  if (data.results.bindings.length === 0) {
-    throw new Error("No OMID found for DOI " + cleanId);
-  }
-
-  return data.results.bindings[0].omid.value;
-}
-*/
-
-async function openLucinda(identifier) {
+/**
+ * Handles logic for Direct ID queries (Resolve -> Redirect)
+ */
+async function openLucinda(identifier, category) {
   try {
-    
     let omid;
-    // Regex patterns for different identifier types
+
+    // Regex Checkers (Redefined scope for clarity)
     const doiRegex = /^(doi:)?10\.\d{4,9}\/[^\s]+$/i;
-    // Matches: doi:10.7717/peerj-cs.421, 10.1038/nature12373, etc.
-
-    // PMID: Just digits, can be 1-8 digits typically
     const pmidRegex = /^pmid:\d{1,8}$/i;
-    // Matches: pmid:33817056, pmid:12345, etc.
-
-    // OpenAlex: Always starts with W followed by 10 digits
     const openalexRegex = /^openalex:W\d{10}$/i;
+    const orcidRegex = /^(orcid:)?\d{4}-\d{4}-\d{4}-\d{3}[0-9X]$/i;
+    const issnRegex = /^(issn:)?\d{4}-\d{3}[0-9X]$/i;
 
-    console.log("Input identifier:", identifier);
-    console.log("DOI match:", doiRegex.test(identifier));
-    console.log("PMID match:", pmidRegex.test(identifier));
-    console.log("OpenAlex match:", openalexRegex.test(identifier));
-   
-
-    // Check if it's a DOI, PMID, or OpenAlex identifier
-    if (doiRegex.test(identifier) || pmidRegex.test(identifier) || openalexRegex.test(identifier)) {
-      // Use the unified idToOmid function for all supported identifiers
+    // Check if resolution is needed
+    if (
+      doiRegex.test(identifier) ||
+      pmidRegex.test(identifier) ||
+      openalexRegex.test(identifier) ||
+      orcidRegex.test(identifier) ||
+      issnRegex.test(identifier)
+    ) {
       omid = await idToOmid(identifier);
     } else {
-      // Assume it's already an OMID
+      // Input is already a Lucinda ID (br/..., ra/...)
       omid = identifier;
     }
 
-  
+    // Clean OMID (remove base URL if present)
     const omidId = omid.replace("https://w3id.org/oc/meta/", "");
 
-    const lucindaUrl = `http://127.0.0.1:5500/example/oc/html_template/browser.html?value=${omidId}`;
+    // --- Contextual Redirect Logic ---
+    // If the user specifically asked for Citations/References, prepend that prefix
+    // Only applies if the resolved ID is a Bibliographic Resource (br/)
+    let finalValue = omidId;
+
+    if (omidId.startsWith("br/")) {
+        if (category === "doc_cit") {
+            finalValue = `doc_cit/${omidId}`;
+        } else if (category === "doc_ref") {
+            finalValue = `doc_ref/${omidId}`;
+        }
+    }
+
+    const lucindaUrl = `http://127.0.0.1:5500/example/oc/html_template/browser.html?value=${finalValue}`;
     window.location.href = lucindaUrl;
 
   } catch (err) {

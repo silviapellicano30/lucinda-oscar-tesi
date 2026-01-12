@@ -4,10 +4,14 @@
 }
 
 
+body {
+  background-color: #E1CEEC;
+}
+
 /* Header Styling */
 header {
   /*background-color: lightgray;*/
-  background: linear-gradient(to top, lightgray, lightgray);
+  background-color: white;;
   color: white;
   padding: 0em;
   font-family: sans-serif;

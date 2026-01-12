@@ -1,0 +1,78 @@
+#id main
+#url value=br/{id}
+#endpoint https://sparql.opencitations.net/meta
+#method get
+#sparql ASK { 
+  VALUES ?type { 
+      <http://purl.org/spar/fabio/Journal> 
+      <http://purl.org/spar/fabio/Series> 
+      <http://purl.org/spar/fabio/BookSeries> 
+      <http://purl.org/spar/fabio/AcademicProceedings> 
+  }
+  <https://w3id.org/oc/meta/br/[[id]]> a ?type .
+}
+
+#id venue_meta
+#endpoint https://sparql.opencitations.net/meta
+#method post
+#preprocess strip(id)
+#postprocess post_venue_meta(title, identifiers)
+#sparql PREFIX datacite: <http://purl.org/spar/datacite/>
+PREFIX literal: <http://www.essepuntato.it/2010/06/literalreification/>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX fabio: <http://purl.org/spar/fabio/>
+
+SELECT ?title (GROUP_CONCAT(DISTINCT ?formattedID; separator=" | ") AS ?identifiers)
+WHERE {
+  BIND(IRI(CONCAT("https://w3id.org/oc/meta/br/", "[[id]]")) AS ?venue)
+  
+  OPTIONAL { ?venue dcterms:title ?title . }
+  
+  OPTIONAL {
+    ?venue datacite:hasIdentifier ?idNode .
+    ?idNode datacite:usesIdentifierScheme ?scheme ;
+            literal:hasLiteralValue ?value .
+    BIND(STRAFTER(STR(?scheme), "http://purl.org/spar/datacite/") AS ?schemeLabel)
+    BIND(CONCAT(?schemeLabel, ":", STR(?value)) AS ?formattedID)
+  }
+}
+GROUP BY ?title
+
+#id venue_works
+#endpoint https://sparql.opencitations.net/meta
+#method post
+#preprocess strip(id)
+#postprocess post_venue_works(article, title, pubdate, identifiers)
+#sparql PREFIX frbr: <http://purl.org/vocab/frbr/core#>
+PREFIX dcterms: <http://purl.org/dc/terms/>
+PREFIX datacite: <http://purl.org/spar/datacite/>
+PREFIX literal: <http://www.essepuntato.it/2010/06/literalreification/>
+PREFIX prism: <http://prismstandard.org/namespaces/basic/2.0/>
+
+SELECT ?article ?title ?pubdate (GROUP_CONCAT(DISTINCT ?formattedID; separator=" | ") AS ?identifiers)
+WHERE {
+  {
+    SELECT DISTINCT ?article ?pubdate
+    WHERE {
+      
+      VALUES ?targetVenue { <https://w3id.org/oc/meta/br/[[id]]> }
+      
+      ?article frbr:partOf+ ?targetVenue .
+      OPTIONAL { ?article prism:publicationDate ?pubdate . }
+    }
+    ORDER BY DESC(?pubdate)
+    LIMIT 1000
+  }
+  
+  OPTIONAL { ?article dcterms:title ?title . }
+  
+  OPTIONAL {
+      ?article datacite:hasIdentifier ?idNode .
+      ?idNode datacite:usesIdentifierScheme ?scheme ;
+              literal:hasLiteralValue ?value .
+      BIND(STRAFTER(STR(?scheme), "http://purl.org/spar/datacite/") AS ?schemeLabel)
+      BIND(CONCAT(?schemeLabel, ":", STR(?value)) AS ?formattedID)
+  }
+}
+GROUP BY ?article ?title ?pubdate
+ORDER BY DESC(?pubdate)

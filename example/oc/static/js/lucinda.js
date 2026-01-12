@@ -1166,19 +1166,16 @@ class Lucinda {
 
       // PIETRO
 
-      var newValues = window[functionName](...values); // This is your pre_oci result: {citing_br: "...", ...}
-
-      // Add the original keys from the arguments of the pre-processor function call
-      
+      var newValues = window[functionName](...values); 
 
       if (newValues != null) {
           if (Array.isArray(newValues)) {
               // [Existing logic for Array return type]
               // ...
           } else if (typeof newValues === 'object') {
-              // === INJECTED LOGIC TO HANDLE OBJECT RETURNS (like yours) ===
+              // === INJECTED LOGIC TO HANDLE OBJECT RETURNS  ===
               for (const k in newValues) {
-                  // Merge the new key/value pairs (citing_br, cited_br) into the main param object
+                  
                   param[k] = newValues[k];
               }
           }
@@ -1246,11 +1243,8 @@ class Lucinda {
       
       let values = [wanted_keys, ...filtered_rows];
       var post_data = window[functionName](values);
-      
-      console.log("data", data);
-      console.log("post_data", post_data);
-      
-      // ============ CONDITIONAL MERGE ============
+
+      // ============ CONDITIONAL MERGE (Pietro)============
       // If postprocessed data has different row count, return as-is (no merge)
       // Otherwise, merge the postprocessed columns with original data
       if (post_data.length !== data.length) {

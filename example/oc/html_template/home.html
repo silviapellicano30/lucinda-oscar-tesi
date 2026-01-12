@@ -5,60 +5,79 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1">
 
-    <!-- Bootstrap CSS -->
     <link rel="stylesheet" href="../static/vendor/bootstrap-5.3.5-dist/css/bootstrap.min.css">
-
-    <!-- Font Awesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css">
 
-    <!-- Custom CSS -->
     <link href="../static/css/home.css" rel="stylesheet">
+    <style>
+      body {
+        background-color: #ffffff; /* White background */
+        min-height: 100vh;         /* Full viewport height */
+        display: flex;             /* Flexbox for centering */
+        flex-direction: column;    /* Stack elements vertically */
+        justify-content: center;   /* Center vertically */
+      }
+      
+      .search-container {
+        max-width: 800px;
+        width: 100%;               /* Ensure it takes full width up to max */
+        margin: 0 auto;            /* Center horizontally */
+      }
+
+      /* Purple Accents */
+      .btn-purple {
+        background-color: #8A2BE2;
+        border-color: #8A2BE2;
+        color: white;
+      }
+      .btn-purple:hover {
+        background-color: #7a26c9;
+        border-color: #7a26c9;
+        color: white;
+      }
+
+      /* Purple focus glow for inputs */
+      .form-control:focus, .form-select:focus {
+        border-color: #8A2BE2;
+        box-shadow: 0 0 0 0.25rem rgba(138, 43, 226, 0.25);
+      }
+    </style>
   </head>
 
   <body class="container py-4">
 
-    <div class="search-bar mb-4">
-      <form id="searchForm" class="d-flex align-items-center">
-        
-        <!-- Dropdown menu -->
-        <select name="category" class="form-select me-2" style="max-width: 150px;">
-          <option value="document">Document</option>
-          <option value="citation">Citation</option>
-          <option value="author">Author</option>
-          <option value="venue">Venue</option>
-        </select>
+    <div class="d-flex justify-content-center mb-4">
+      <img src="../static/img/oc-medium.png" alt="OpenCitations Logo" class="img-fluid" style="max-height: 100px;">
+    </div>
 
-        <!-- Search input -->
-        <input type="text" id="searchQuery" name="query" class="form-control" placeholder="Search..." />
-
+    <div class="search-bar mb-4 search-container">
+      <form id="searchForm">
         
-        <button type="submit" class="btn btn-primary rounded-circle ms-2">
-          <i class="fa fa-search"></i>
-        </button>
+        <div class="input-group">
+            
+            <select name="category" class="form-select" style="min-width: 222px; background-color: #f8f9fa; justify-content: center;">
+              <option value="document">Document Record</option>
+              <option value="author">Author Record</option>
+              <option value="venue">Venue Record</option>
+              <option value="citation">Citation Record</option>
+              <option value="doc_cit">Document Citations</option>
+              <option value="doc_ref">Document References</option>
+             
+            </select>
+
+            <input type="text" id="searchQuery" name="query" class="form-control" placeholder="Search..." aria-label="Search" />
+
+            <button type="submit" class="btn btn-purple">
+              <i class="fa fa-search"></i>
+            </button>
+            
+        </div>
+
       </form>
     </div>
 
-    <div class="d-flex justify-content-center">
-      <button type="button" class="btn btn-light">Advanced Search</button>
-    </div> 
-
-
-
-    <h3>Browse a BR resource (omid = br/062501806985)</h3>
-    <p><a href="../html_template/browser.html?value=br/062501806985">br/062501806985</a></p>
-
-    <h3>Browse a BR journal article resource (br/061503302005)</h3>
-    <p><a href="../html_template/browser.html?value=br/061503302005">br/061503302005</a></p>
-
-    <h3>Browse an AR resource:</h3>
-    <p><a href="../html_template/browser.html?value=ar/123">ar/123</a></p>
-
-    <!-- Bootstrap JS bundle -->
     <script src="../static/vendor/bootstrap-5.3.5-dist/js/bootstrap.bundle.min.js"></script>
-    <!-- Custom JS -->
     <script src="../static/js/home.js"></script>
 
-
   </body>
-  
 </html>
