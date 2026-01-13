@@ -1594,11 +1594,11 @@ function api_search() {
                         } else {
                             parts.push(`<span>${name}</span>`);
                         }
-                        if (orcid !== "")  {
+                        if (orcid)  {
                             parts.push(`(<a href="https://orcid.org/${orcid}" target="_blank">${orcid}</a>)`);
                         }
-                        else
-                            parts.join('<span >no ORCID found');
+                        return parts.join(' ');
+                        
                     }).join(' • ');
                 }
 
@@ -1624,7 +1624,7 @@ function api_search() {
                     
                     if (omidToken) {
                          const cleanOmid = omidToken.replace("omid:", "");
-                         venueLink = `http://127.0.0.1:5500/example/oc/html_template/browser.html?value=br/${cleanOmid}`;
+                         venueLink = `http://127.0.0.1:5500/example/oc/html_template/browser.html?value=${cleanOmid}`;
                     }
                     
                     const displayIdTokens = idTokens.filter(t => t !== omidToken);
@@ -2389,6 +2389,7 @@ function extract_years_for_chart(lucinda_data_obj) {
 
     const years_list = pipe_string.split('|').filter(y => y !== "");
     
+
     const matrix = [['year']];
     years_list.forEach(y => {
         matrix.push([y]);

@@ -20,7 +20,7 @@ WHERE {
 
     FILTER(CONTAINS(LCASE(?title), ?search_str))
 }
-LIMIT 1
+LIMIT 3
 
 #id api_search
 #callfun api_search_venue()
