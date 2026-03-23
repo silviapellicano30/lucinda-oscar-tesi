@@ -3,31 +3,29 @@
 
 #id search_ids
 #endpoint https://sparql.opencitations.net/meta
+#preprocess pre_search_authors(search_query)
 #postprocess post_search_ids(agent)
 #method get
 #sparql PREFIX foaf: <http://xmlns.com/foaf/0.1/>
 
 SELECT DISTINCT ?agent
 WHERE {
-    
-    BIND(LCASE(REPLACE("[[search_query]]", "%20", " ")) AS ?search_str)
-
-    
     ?agent a foaf:Agent .
 
-    
-    OPTIONAL { ?agent foaf:name ?fullName }
-    OPTIONAL { ?agent foaf:givenName ?gName }
-    OPTIONAL { ?agent foaf:familyName ?fName }
-
-    
-    FILTER(
-        CONTAINS(LCASE(COALESCE(?fullName, "")), ?search_str) ||
-        CONTAINS(LCASE(COALESCE(?gName, "")), ?search_str) ||
-        CONTAINS(LCASE(COALESCE(?fName, "")), ?search_str)
-    )
+    {
+        ?agent foaf:name ?fullName .
+        ?fullName bif:contains [[search_query]] .
+    } UNION {
+        ?agent foaf:givenName ?gName .
+        ?gName bif:contains [[search_query_gname]] .
+        FILTER([[is_single_term]])
+    } UNION {
+        ?agent foaf:familyName ?fName .
+        ?fName bif:contains [[search_query_fname]] .
+        FILTER([[is_single_term]])
+    }
 }
-LIMIT 2
+LIMIT 100
 
 
 #id api_search

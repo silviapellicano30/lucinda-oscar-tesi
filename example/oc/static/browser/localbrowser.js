@@ -405,21 +405,32 @@ Lucinda_view.prototype.barchart = function(...args){
 // Author Profile Link
 Lucinda_view.prototype.create_author_header_link = function (...args) {
     try {
-        
         let id_data = Lucinda_util.lucinda_unformat(args[0]).getData();
         let gname_data = Lucinda_util.lucinda_unformat(args[1]).getData();
         let fname_data = Lucinda_util.lucinda_unformat(args[2]).getData();
+        let fullname_data = Lucinda_util.lucinda_unformat(args[3]).getData();
+
+        console.log("id_data", id_data);
+        console.log("gname_data", gname_data);
+        console.log("fname_data", fname_data);
+        console.log("fullname_data", fullname_data);
 
         let id = (id_data[0] && id_data[0][0]) ? id_data[0][0] : "";
-        let gname = (gname_data[0] && gname_data[0][0]) ? gname_data[0][0] : "";
-        let fname = (fname_data[0] && fname_data[0][0]) ? fname_data[0][0] : "";
+        let gname = (gname_data[0] && gname_data[0][0] && gname_data[0][0] !== null) ? gname_data[0][0] : "";
+        let fname = (fname_data[0] && fname_data[0][0] && fname_data[0][0] !== null) ? fname_data[0][0] : "";
+        let fullname_direct = (fullname_data[0] && fullname_data[0][0] && fullname_data[0][0] !== null) ? fullname_data[0][0] : "";
 
-        let fullname = (gname + " " + fname).trim();
-        if (!fullname) fullname = "Unknown Author";
+        console.log("id", id);
+        console.log("gname", gname);
+        console.log("fname", fname);
+        console.log("fullname_direct", fullname_direct);
 
-        
+        let fullname = (gname + " " + fname).trim() || fullname_direct || "Unknown Author";
+        console.log("fullname result", fullname);
+
         return `<a href="https://ldd.opencitations.net/meta/ra/${id}" target="_blank" class="text-reset text-decoration-none">${fullname}</a>`;
     } catch (e) {
+        console.log("error", e);
         return "Link Error";
     }
 };
@@ -806,6 +817,53 @@ Lucinda_view.prototype.getRaw = function (...args) {
 PREPROCESS FUNCTIONS|
 ---------------------
 */
+function pre_search_authors(search_query) {
+  if (typeof search_query !== 'string') return { search_query: '""', search_query_gname: '""', search_query_fname: '""', is_single_term: 'false' };
+
+  let clean;
+  try {
+    clean = decodeURIComponent(search_query).trim();
+  } catch (e) {
+    clean = search_query.replace(/%20/g, ' ').trim();
+  }
+
+  if (!clean) return { search_query: '""', search_query_gname: '""', search_query_fname: '""', is_single_term: 'false' };
+
+  const terms = clean.split(/\s+/).filter(t => t.length > 0);
+  const isSingle = terms.length === 1;
+
+  const andExpr = terms.map(t => `"${t}"`).join(' AND ');
+  const orExpr = terms.map(t => `"${t}"`).join(' OR ');
+
+  return {
+    search_query: `'${andExpr}'`,
+    search_query_gname: `'${orExpr}'`,
+    search_query_fname: `'${orExpr}'`,
+    is_single_term: isSingle ? 'true' : 'false'
+  };
+}
+function remove_per(search_query) {
+    console.log("before pre process", search_query)
+  if (typeof search_query !== 'string') return { search_query: '""' };
+  
+  let clean;
+  try {
+    clean = decodeURIComponent(search_query).trim();
+  } catch (e) {
+    clean = search_query.replace(/%20/g, ' ').trim();
+  }
+  
+  if (!clean) return { search_query: '""' };
+
+  const terms = clean.split(/\s+/).filter(t => t.length > 0);
+
+  if (terms.length === 1) {
+    return { search_query: `'"${terms[0]}"'` };
+  }
+
+  const andExpr = terms.map(t => `"${t}"`).join(' AND ');
+  return { search_query: `'${andExpr}'` };
+}
 
 function strip(...args) {
   if (args.length === 0) return [];

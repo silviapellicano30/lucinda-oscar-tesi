@@ -3,24 +3,20 @@
 
 #id search_ids
 #endpoint https://sparql.opencitations.net/meta
+#preprocess remove_per(search_query)
 #postprocess post_search_ids(ids)
 #method get
-#sparql PREFIX dcterm: <http://purl.org/dc/terms/>
+#sparql PREFIX dcterms: <http://purl.org/dc/terms/>
 PREFIX fabio: <http://purl.org/spar/fabio/>
 
 SELECT DISTINCT ?ids
 WHERE {
-    BIND(LCASE(REPLACE("[[search_query]]", "%20", " ")) AS ?search_str)
-
-   
     VALUES ?type { fabio:Journal fabio:Series }
     ?ids a ?type .
-    
-    ?ids dcterm:title ?title .
-
-    FILTER(CONTAINS(LCASE(?title), ?search_str))
+    ?ids dcterms:title ?title .
+    ?title bif:contains [[search_query]] .
 }
-LIMIT 3
+
 
 #id api_search
 #callfun api_search_venue()
